@@ -8,7 +8,7 @@
 
 ## Executive summary
 
-A SaaS business with growing revenue is losing customers faster than it can compound them. Across 600 subscription customers and 48 months of revenue history, **52.17% of all customers acquired have churned (313 of 600)**. The subscription snapshot contains 287 active customers; the latest monthly revenue snapshot reports 281 active customers and approximately \$292.6K MRR.
+A SaaS business is growing revenue while experiencing significant customer churn, creating a clear retention and customer-health challenge. Across 600 subscription customers and 48 months of revenue history, **52.17% of all customers acquired have churned (313 of 600)**. The subscription snapshot contains 287 active customers; the latest monthly revenue snapshot reports 281 active customers and approximately \$292.6K MRR.
 
 The loss is not evenly spread. Churn concentrates at the entry tier (**Starter 70.51%** against **Enterprise 22.00%**) and among customers on monthly billing (**60.51%** against **40.32%** for annual). Behavioral signals separate the two groups clearly: customers who left had materially lower product adoption and lower satisfaction than customers who stayed. The defined high-risk heuristic - feature usage below 40% and NPS ≤ 4 - flags **31 active customers** in the current base.
 
