@@ -8,9 +8,9 @@
 
 ## Executive summary
 
-A SaaS business with growing revenue is losing customers faster than it can compound them. Across 600 subscription customers and 48 months of revenue history, **52.17% of all customers acquired have churned (313 of 600)**, leaving **287 active customers carrying roughly \$292.6K in latest MRR**.
+A SaaS business with growing revenue is losing customers faster than it can compound them. Across 600 subscription customers and 48 months of revenue history, **52.17% of all customers acquired have churned (313 of 600)**. The subscription snapshot contains 287 active customers; the latest monthly revenue snapshot reports 281 active customers and approximately \$292.6K MRR.
 
-The loss is not evenly spread. Churn concentrates at the entry tier (**Starter 70.51%** against **Enterprise 22.00%**) and among customers on monthly billing (**60.51%** against **40.32%** for annual). Behavioral signals separate the two groups clearly: customers who left had materially lower product adoption and lower satisfaction than customers who stayed. Applying a transparent risk heuristic to the current base flags **31 active customers** who look like prior churners and are still saveable today.
+The loss is not evenly spread. Churn concentrates at the entry tier (**Starter 70.51%** against **Enterprise 22.00%**) and among customers on monthly billing (**60.51%** against **40.32%** for annual). Behavioral signals separate the two groups clearly: customers who left had materially lower product adoption and lower satisfaction than customers who stayed. The defined high-risk heuristic - feature usage below 40% and NPS ≤ 4 - flags **31 active customers** in the current base.
 
 The recommendation set is therefore narrow and operational: fix entry-tier onboarding and adoption, test annual conversion for suitable monthly accounts, trigger Customer Success outreach on the 31 flagged accounts, review the acquisition channels producing the highest Lost MRR, and protect the small number of high-value Enterprise accounts that carry a disproportionate share of revenue.
 
@@ -52,25 +52,25 @@ Source extracts are treated as immutable; all cleaning and derivation happens do
 | Data quality | SQL, Power Query | Uniqueness, null and expected-null audits, date and type validation, categorical integrity checks |
 | Analysis | SQL (CTEs, `CASE WHEN`, `RANK()`, `LAG()`, minimum sample-size filters) | Multi-dimensional segmentation and revenue-impact quantification |
 | Exploration and validation | Excel (PivotTables, cross-checks) | Independent recalculation of published totals |
-| Reporting | Power BI (star schema, marked date table, DAX) | Executive reporting layer with 13 governed measures |
+| Reporting | Power BI (data modeling, marked date table, DAX) | Executive reporting layer with 13 governed measures |
 | Governance | Markdown documentation | Metric definitions, assumptions, QA controls, stated limitations |
 
 ---
 
 ## Data model
 
-A small star schema, deliberately kept minimal:
+A lightweight reporting model with a dedicated Date dimension, deliberately kept minimal:
 
 ```
         Date (marked date table)
               |  1
-              |  *
+              |  1
       monthly_revenue[month]
 
       subscriptions  (customer dimension + facts, 1 row per customer)
 ```
 
-- `Date` is a generated calendar table, marked as the model date table, related one-to-many to `monthly_revenue[month]` with **single-direction filtering**.
+- `Date` is a generated calendar table, marked as the model date table, related one-to-one to `monthly_revenue[month]` with **single-direction filtering**.
 - `subscriptions` is held at customer grain and carries the churn, risk and unit-economics measures.
 - Helper fields such as month sort order are hidden from report users.
 
@@ -128,7 +128,7 @@ KPI row (Total Customers, Churned Customers, Churn Rate, Latest MRR, Average CAC
 **Page 2 - Churn Diagnostics:** *Where and why are we losing customers?*
 Churn by company size, churn by acquisition channel, top churn reasons, plan x acquisition-channel matrix, and Lost MRR by segment.
 
-![Customer Risk and Unit Economics](screenshots/customer_risk_unit_economics.png)
+![Customer Risk & Unit Economics](screenshots/customer_risk_unit_economics.png)
 
 **Page 3 - Customer Risk & Unit Economics:** *Where should the company act?*
 Feature usage against churn, NPS against churn, support behavior comparison, the active high-risk customer table, estimated CLV by plan and CLV:CAC.
@@ -137,13 +137,13 @@ Feature usage against churn, NPS against churn, support behavior comparison, the
 
 ## Key findings
 
-1. **Retention, not acquisition, is the constraint.** 313 of 600 customers acquired have canceled, a lifetime churn rate of 52.17%. Revenue growth is being funded by replacing customers rather than compounding them.
+1. **Retention is the clearest customer-health risk identified in this analysis.** 313 of 600 customers acquired have canceled, a lifetime churn rate of 52.17%. Revenue has grown despite high historical churn, indicating that acquisition and retained recurring revenue have offset customer losses in aggregate.
 2. **Churn is concentrated at the entry tier.** Starter churn is 70.51% against 22.00% for Enterprise - roughly 3.2 times higher. Plan tier, not overall product quality, is where the retention problem lives.
 3. **Billing cadence separates retention sharply.** Monthly-billed customers churn at 60.51% against 40.32% for annual, a gap of 20.2 percentage points. Annual commitment coincides with materially better retention.
 4. **Adoption and satisfaction differ measurably between churned and retained customers.** Customers who left show lower feature usage and lower NPS than customers who stayed. This is an observational difference, not proof of cause, but it is strong enough to prioritize outreach on.
-5. **31 active customers currently look like prior churners.** That is 10.8% of the 287 active accounts, flagged by low adoption and low NPS while still billable - the saveable population.
+5. **31 active customers meet the defined high-risk heuristic: feature usage below 40% and NPS ≤ 4.** That is 10.8% of the 287 active accounts in the subscription snapshot, and all of them are still billable today.
 6. **Recurring revenue loss is concentrated in a small number of plan and channel combinations.** Ranking segments by Lost MRR shows a minority of plan x channel pairs driving a disproportionate share of total loss, which makes channel quality a revenue issue rather than a marketing metric.
-7. **Revenue concentration raises the stakes on Enterprise retention.** 287 active customers carry roughly \$292.6K MRR, about \$1.0K per account on average, and Enterprise accounts sit well above that average - so a small number of Enterprise losses would outweigh many Starter losses.
+7. **Revenue concentration raises the stakes on Enterprise retention.** Latest monthly MRR is approximately \$292.6K across 281 reported active customers, or about \$1.04K MRR per active customer. Enterprise accounts sit well above that average, so a small number of Enterprise losses would outweigh many Starter losses.
 
 ---
 
@@ -209,7 +209,7 @@ saas-revenue-churn-analysis/
 |---|---|
 | Total Customers | 600 |
 | Churned Customers | 313 |
-| Active Customers | 287 |
+| Active Customers (subscription snapshot) | 287 |
 | Overall Churn Rate | 52.17% |
 | Starter Churn Rate | 70.51% |
 | Enterprise Churn Rate | 22.00% |
@@ -217,5 +217,6 @@ saas-revenue-churn-analysis/
 | Annual Billing Churn Rate | 40.32% |
 | At-Risk Active Customers | 31 |
 | Latest MRR | approx. \$292.6K |
+| Latest Active Customers | 281 |
 
 Full definitions and assumptions: [`docs/methodology.md`](docs/methodology.md).
