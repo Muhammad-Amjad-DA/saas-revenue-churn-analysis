@@ -18,7 +18,6 @@ Field-level documentation for the two source extracts used in this project. Data
 | `region` | subscriptions | Text | Customer region | Slicer dimension for executive reporting |
 | `acquisition_channel` | subscriptions | Text | Channel that acquired the customer (for example Organic, Paid Search, Referral, Partner, Outbound) | Links retention quality back to go-to-market spend, not just volume |
 | `monthly_revenue` | subscriptions | Decimal | Customer monthly recurring revenue. For churned customers this is the last known MRR before churn | Basis for MRR and Lost MRR; makes revenue impact comparable across segments |
-| `cac` | subscriptions | Decimal | Customer acquisition cost attributed to the customer | Blended channel/plan level figure, used only for CLV:CAC context |
 | `nps_score` | subscriptions | Integer (0-10) | Most recent Net Promoter Score response | Satisfaction signal; one of the two inputs to the at-risk rule |
 | `feature_usage_pct` | subscriptions | Decimal (0-100) | Percentage of core product features actively used | Adoption signal; low adoption indicates unrealized product value |
 | `support_tickets` | subscriptions | Integer | Count of support tickets raised by the customer | Service-friction indicator used in behavioral comparison |
@@ -39,6 +38,7 @@ Field-level documentation for the two source extracts used in this project. Data
 | `active_customers` | monthly_revenue | Integer | Customers billable during the month | Denominator context for monthly churn |
 | `new_customers` | monthly_revenue | Integer | Customers acquired during the month | Shows whether growth is masking retention weakness |
 | `churned_customers` | monthly_revenue | Integer | Customers who canceled during the month | Numerator of the monthly churn rate |
+| `customer_acquisition_cost` | monthly_revenue | Decimal | Blended customer acquisition cost recorded for the month | Monthly aggregate, not a per-customer attribute; compared with CLV to assess payback |
 
 ---
 
