@@ -4,8 +4,8 @@ Immutable source extracts. These files are the single source of truth for every 
 
 | File | Grain | Rows | Contents |
 |---|---|---|---|
-| `subscriptions.csv` | One row per customer | 600 | Plan, billing cycle, company size, region, acquisition channel, MRR, NPS, feature usage, support tickets, churn flag, churn date, churn reason |
-| `monthly_revenue.csv` | One row per calendar month | 48 | Total MRR, active customers, new customers, churned customers, customer acquisition cost (CAC) |
+| `subscriptions.csv` | One row per customer | 600 | customer_id, plan, billing_cycle, industry, company_size, seats, monthly_revenue, acquisition_channel, region, signup_date, churned, churn_date, churn_reason, support_tickets_12mo, nps_score, feature_usage_pct, upgraded |
+| `monthly_revenue.csv` | One row per calendar month | 48 | month, total_active_customers, new_customers, churned_customers, monthly_churn_rate_pct, total_mrr, avg_revenue_per_customer, customer_acquisition_cost |
 
 Customer acquisition cost is recorded only in `monthly_revenue.csv` as a blended monthly figure. It is not available at customer level in `subscriptions.csv`.
 
