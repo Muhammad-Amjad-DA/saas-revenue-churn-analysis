@@ -10,8 +10,8 @@
 
 | Source | Grain | Rows | Role in the analysis |
 |---|---|---|---|
-| `data/subscriptions.csv` | One row per customer | 600 | Customer attributes, MRR, churn status and reason, NPS, feature usage, support activity, acquisition channel, company size, billing cycle, CAC |
-| `data/monthly_revenue.csv` | One row per calendar month | 48 | Monthly recurring revenue and customer movement used for trend analysis |
+| `data/subscriptions.csv` | One row per customer | 600 | Customer attributes, MRR, churn status and reason, NPS, feature usage, support activity, acquisition channel, company size, billing cycle |
+| `data/monthly_revenue.csv` | One row per calendar month | 48 | Monthly recurring revenue and customer movement used for trend analysis, and blended monthly customer acquisition cost |
 | `Date` (Power BI calculated table) | One row per calendar date | Generated | Marked as the model date table; joined to `monthly_revenue[month]` for time intelligence |
 
 Raw extracts are treated as immutable. All cleaning, typing and derivation happens downstream in Power Query, SQL or DAX so that the analysis is reproducible from the source files.
@@ -32,7 +32,7 @@ Raw extracts are treated as immutable. All cleaning, typing and derivation happe
 | Latest MRR | `total_mrr` for the most recent month in `monthly_revenue` | approx. \$292.6K |
 | MRR Growth | (Latest MRR - prior month MRR) / prior month MRR | Month-over-month |
 | Lost MRR | Sum of `monthly_revenue` for churned customers. Represents recurring revenue no longer being billed, measured at the customer's last known MRR | Segment-level driver metric |
-| Average CAC | Average of `cac` across customers in scope | Blended, see assumptions |
+| Average CAC | Average of `customer_acquisition_cost` across the months in scope | Blended monthly figure, see assumptions |
 | Estimated CLV | Average MRR x average observed customer lifespan in months | Directional estimate |
 | CLV:CAC | Estimated CLV / Average CAC | Efficiency indicator by plan |
 | At-Risk Customers | Active customers with `feature_usage_pct < 40` AND `nps_score <= 4` | 31 |
