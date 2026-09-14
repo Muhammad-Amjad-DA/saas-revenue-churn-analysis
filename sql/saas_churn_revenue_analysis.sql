@@ -40,11 +40,11 @@ FROM subscriptions;
 --     customers. Any row in the 'unexpected' buckets is a data-integrity defect.
 SELECT
     CASE
-        WHEN is_churned = 1 AND churn_date IS NOT NULL AND churn_reason IS NOT NULL
+        WHEN churned = 'Yes' AND churn_date IS NOT NULL AND churn_reason IS NOT NULL
             THEN 'Churned - complete (expected)'
-        WHEN is_churned = 1 AND (churn_date IS NULL OR churn_reason IS NULL)
+        WHEN churned = 'Yes' AND (churn_date IS NULL OR churn_reason IS NULL)
             THEN 'Churned - missing churn detail (unexpected)'
-        WHEN is_churned = 0 AND churn_date IS NULL AND churn_reason IS NULL
+        WHEN churned = 'No' AND churn_date IS NULL AND churn_reason IS NULL
             THEN 'Active - blank churn fields (expected)'
         ELSE 'Active - churn fields populated (unexpected)'
     END                     AS integrity_bucket,
@@ -80,8 +80,8 @@ SELECT
     MAX(nps_score)         AS max_nps,
     MIN(feature_usage_pct) AS min_usage_pct,    -- expected 0-100
     MAX(feature_usage_pct) AS max_usage_pct,
-    MIN(support_tickets)   AS min_tickets,      -- expected >= 0
-    MAX(support_tickets)   AS max_tickets
+    MIN(support_tickets_12mo)   AS min_tickets,      -- expected >= 0
+    MAX(support_tickets_12mo)   AS max_tickets
 FROM subscriptions;
 
 
@@ -92,12 +92,12 @@ FROM subscriptions;
 
 SELECT
     COUNT(*)                                                              AS total_customers,
-    SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END)                       AS churned_customers,
-    SUM(CASE WHEN is_churned = 0 THEN 1 ELSE 0 END)                       AS active_customers,
-    ROUND(100.0 * SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END)
+    SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)                       AS churned_customers,
+    SUM(CASE WHEN churned = 'No' THEN 1 ELSE 0 END)                       AS active_customers,
+    ROUND(100.0 * SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)
           / NULLIF(COUNT(*), 0), 2)                                       AS churn_rate_pct,
-    ROUND(SUM(CASE WHEN is_churned = 0 THEN monthly_revenue ELSE 0 END), 2) AS active_mrr,
-    ROUND(SUM(CASE WHEN is_churned = 1 THEN monthly_revenue ELSE 0 END), 2) AS lost_mrr
+    ROUND(SUM(CASE WHEN churned = 'No' THEN monthly_revenue ELSE 0 END), 2) AS active_mrr,
+    ROUND(SUM(CASE WHEN churned = 'Yes' THEN monthly_revenue ELSE 0 END), 2) AS lost_mrr
 FROM subscriptions;
 
 
@@ -109,11 +109,11 @@ FROM subscriptions;
 SELECT
     plan,
     COUNT(*)                                                              AS customers,
-    SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END)                       AS churned_customers,
-    ROUND(100.0 * SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END)
+    SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)                       AS churned_customers,
+    ROUND(100.0 * SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)
           / NULLIF(COUNT(*), 0), 2)                                       AS churn_rate_pct,
     ROUND(AVG(monthly_revenue), 2)                                        AS avg_mrr_per_customer,
-    ROUND(SUM(CASE WHEN is_churned = 1 THEN monthly_revenue ELSE 0 END), 2) AS lost_mrr
+    ROUND(SUM(CASE WHEN churned = 'Yes' THEN monthly_revenue ELSE 0 END), 2) AS lost_mrr
 FROM subscriptions
 GROUP BY plan
 ORDER BY churn_rate_pct DESC;
@@ -127,8 +127,8 @@ ORDER BY churn_rate_pct DESC;
 SELECT
     billing_cycle,
     COUNT(*)                                                              AS customers,
-    SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END)                       AS churned_customers,
-    ROUND(100.0 * SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END)
+    SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)                       AS churned_customers,
+    ROUND(100.0 * SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)
           / NULLIF(COUNT(*), 0), 2)                                       AS churn_rate_pct
 FROM subscriptions
 GROUP BY billing_cycle
@@ -144,9 +144,9 @@ SELECT
     company_size,
     region,
     COUNT(*)                                                              AS customers,
-    ROUND(100.0 * SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END)
+    ROUND(100.0 * SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)
           / NULLIF(COUNT(*), 0), 2)                                       AS churn_rate_pct,
-    ROUND(SUM(CASE WHEN is_churned = 1 THEN monthly_revenue ELSE 0 END), 2) AS lost_mrr
+    ROUND(SUM(CASE WHEN churned = 'Yes' THEN monthly_revenue ELSE 0 END), 2) AS lost_mrr
 FROM subscriptions
 GROUP BY company_size, region
 HAVING COUNT(*) >= 20            -- minimum sample size: suppress unstable segments
@@ -162,11 +162,11 @@ WITH channel_performance AS (
     SELECT
         acquisition_channel,
         COUNT(*)                                                          AS customers,
-        SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END)                   AS churned_customers,
-        ROUND(100.0 * SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END)
+        SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)                   AS churned_customers,
+        ROUND(100.0 * SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)
               / NULLIF(COUNT(*), 0), 2)                                   AS churn_rate_pct,
         ROUND(AVG(cac), 2)                                                AS avg_cac,
-        ROUND(SUM(CASE WHEN is_churned = 1 THEN monthly_revenue ELSE 0 END), 2) AS lost_mrr
+        ROUND(SUM(CASE WHEN churned = 'Yes' THEN monthly_revenue ELSE 0 END), 2) AS lost_mrr
     FROM subscriptions
     GROUP BY acquisition_channel
     HAVING COUNT(*) >= 30        -- minimum sample size for channel-level decisions
@@ -196,7 +196,7 @@ SELECT
           / NULLIF(SUM(COUNT(*)) OVER (), 0), 2)                          AS pct_of_churn,
     ROUND(SUM(monthly_revenue), 2)                                        AS lost_mrr
 FROM subscriptions
-WHERE is_churned = 1
+WHERE churned = 'Yes'
   AND churn_reason IS NOT NULL
 GROUP BY churn_reason
 ORDER BY churned_customers DESC;
@@ -209,14 +209,14 @@ ORDER BY churned_customers DESC;
    ============================================================================ */
 
 SELECT
-    CASE WHEN is_churned = 1 THEN 'Churned' ELSE 'Active' END             AS customer_status,
+    CASE WHEN churned = 'Yes' THEN 'Churned' ELSE 'Active' END             AS customer_status,
     COUNT(*)                                                              AS customers,
     ROUND(AVG(feature_usage_pct), 1)                                      AS avg_feature_usage_pct,
     ROUND(AVG(CAST(nps_score AS DECIMAL(10,2))), 1)                       AS avg_nps,
-    ROUND(AVG(CAST(support_tickets AS DECIMAL(10,2))), 1)                 AS avg_support_tickets,
+    ROUND(AVG(CAST(support_tickets_12mo AS DECIMAL(10,2))), 1)                 AS avg_support_tickets_12mo,
     ROUND(AVG(monthly_revenue), 2)                                        AS avg_mrr
 FROM subscriptions
-GROUP BY CASE WHEN is_churned = 1 THEN 'Churned' ELSE 'Active' END
+GROUP BY CASE WHEN churned = 'Yes' THEN 'Churned' ELSE 'Active' END
 ORDER BY customer_status;
 
 
@@ -231,16 +231,16 @@ WITH segment_loss AS (
         plan,
         acquisition_channel,
         COUNT(*)                                                          AS customers,
-        SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END)                   AS churned_customers,
-        ROUND(100.0 * SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END)
+        SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)                   AS churned_customers,
+        ROUND(100.0 * SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)
               / NULLIF(COUNT(*), 0), 2)                                   AS churn_rate_pct,
-        SUM(CASE WHEN is_churned = 1 THEN monthly_revenue ELSE 0 END)     AS lost_mrr
+        SUM(CASE WHEN churned = 'Yes' THEN monthly_revenue ELSE 0 END)     AS lost_mrr
     FROM subscriptions
     GROUP BY plan, acquisition_channel
     HAVING COUNT(*) >= 15        -- minimum sample size before a segment is actioned
 ),
 company_total AS (
-    SELECT SUM(CASE WHEN is_churned = 1 THEN monthly_revenue ELSE 0 END) AS total_lost_mrr
+    SELECT SUM(CASE WHEN churned = 'Yes' THEN monthly_revenue ELSE 0 END) AS total_lost_mrr
     FROM subscriptions
 )
 SELECT
@@ -269,9 +269,9 @@ WITH risk_flagged AS (
     SELECT
         s.*,
         CASE
-            WHEN is_churned = 0 AND feature_usage_pct < 40 AND nps_score <= 4 THEN 'At Risk'
-            WHEN is_churned = 0 AND (feature_usage_pct < 40 OR nps_score <= 4) THEN 'Watch'
-            WHEN is_churned = 0                                                THEN 'Healthy'
+            WHEN churned = 'No' AND feature_usage_pct < 40 AND nps_score <= 4 THEN 'At Risk'
+            WHEN churned = 'No' AND (feature_usage_pct < 40 OR nps_score <= 4) THEN 'Watch'
+            WHEN churned = 'No'                                                THEN 'Healthy'
             ELSE 'Churned'
         END AS risk_segment
     FROM subscriptions s
@@ -298,9 +298,9 @@ SELECT
     monthly_revenue,
     feature_usage_pct,
     nps_score,
-    support_tickets
+    support_tickets_12mo
 FROM subscriptions
-WHERE is_churned = 0
+WHERE churned = 'No'
   AND feature_usage_pct < 40
   AND nps_score <= 4
 ORDER BY monthly_revenue DESC;
@@ -321,7 +321,7 @@ WITH lifespan AS (
         (EXTRACT(YEAR  FROM churn_date) - EXTRACT(YEAR  FROM signup_date)) * 12
       + (EXTRACT(MONTH FROM churn_date) - EXTRACT(MONTH FROM signup_date)) AS tenure_months
     FROM subscriptions
-    WHERE is_churned = 1
+    WHERE churned = 'Yes'
       AND churn_date IS NOT NULL
 ),
 plan_lifespan AS (
@@ -374,16 +374,16 @@ ORDER BY month;
 
 SELECT 'Total Customers'   AS metric, CAST(COUNT(*) AS DECIMAL(18,2)) AS value FROM subscriptions
 UNION ALL
-SELECT 'Churned Customers', CAST(SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END) AS DECIMAL(18,2)) FROM subscriptions
+SELECT 'Churned Customers', CAST(SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END) AS DECIMAL(18,2)) FROM subscriptions
 UNION ALL
-SELECT 'Active Customers',  CAST(SUM(CASE WHEN is_churned = 0 THEN 1 ELSE 0 END) AS DECIMAL(18,2)) FROM subscriptions
+SELECT 'Active Customers',  CAST(SUM(CASE WHEN churned = 'No' THEN 1 ELSE 0 END) AS DECIMAL(18,2)) FROM subscriptions
 UNION ALL
-SELECT 'Churn Rate %',      ROUND(100.0 * SUM(CASE WHEN is_churned = 1 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) FROM subscriptions
+SELECT 'Churn Rate %',      ROUND(100.0 * SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) FROM subscriptions
 UNION ALL
-SELECT 'At-Risk Active',    CAST(SUM(CASE WHEN is_churned = 0 AND feature_usage_pct < 40 AND nps_score <= 4 THEN 1 ELSE 0 END) AS DECIMAL(18,2)) FROM subscriptions
+SELECT 'At-Risk Active',    CAST(SUM(CASE WHEN churned = 'No' AND feature_usage_pct < 40 AND nps_score <= 4 THEN 1 ELSE 0 END) AS DECIMAL(18,2)) FROM subscriptions
 UNION ALL
-SELECT 'Lost MRR',          ROUND(SUM(CASE WHEN is_churned = 1 THEN monthly_revenue ELSE 0 END), 2) FROM subscriptions
+SELECT 'Lost MRR',          ROUND(SUM(CASE WHEN churned = 'Yes' THEN monthly_revenue ELSE 0 END), 2) FROM subscriptions
 UNION ALL
-SELECT 'Active MRR',        ROUND(SUM(CASE WHEN is_churned = 0 THEN monthly_revenue ELSE 0 END), 2) FROM subscriptions;
+SELECT 'Active MRR',        ROUND(SUM(CASE WHEN churned = 'No' THEN monthly_revenue ELSE 0 END), 2) FROM subscriptions;
 
 -- End of file
