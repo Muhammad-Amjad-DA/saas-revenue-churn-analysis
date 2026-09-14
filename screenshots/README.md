@@ -1,6 +1,6 @@
 # screenshots/
 
-Three exports from the Power BI report, one per stakeholder question, so the analysis can be reviewed on GitHub without opening the .pbix file.
+Static previews of the three report pages, one per stakeholder question, so the analysis can be reviewed on GitHub without opening the .pbix file.
 
 | File | Page | Question answered |
 |---|---|---|
@@ -8,4 +8,6 @@ Three exports from the Power BI report, one per stakeholder question, so the ana
 | `churn_diagnostics.png` | Churn Diagnostics | Where and why are we losing customers? |
 | `customer_risk_unit_economics.png` | Customer Risk & Unit Economics | Where should we act? |
 
-**Export standard:** full page at full resolution, no editing panes, no desktop background, no cropped visuals, consistent layout and theme across all three pages.
+These images are preview renderings of the report layout produced from the validated project data. They are not raw exports of the .pbix file. The report in `powerbi/saas_churn_dashboard.pbix` remains the authoritative version.
+
+**Presentation standard:** full page, no editing panes, no desktop background, no cropped visuals, consistent layout and theme across all three pages.
