@@ -37,7 +37,7 @@ Key techniques: CTEs, `CASE WHEN`, `RANK()`, segmentation, revenue-loss analysis
 - Latest monthly revenue reached approximately **$292.6K MRR**.
 - Lost MRR is concentrated in specific **plan × acquisition-channel** segments.
 
-## Dashboard
+## Dashboard Preview
 
 ### Executive Overview
 Revenue, churn, customer risk, and high-level retention performance.
