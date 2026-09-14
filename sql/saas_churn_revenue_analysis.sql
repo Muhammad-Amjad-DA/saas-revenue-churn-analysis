@@ -165,7 +165,6 @@ WITH channel_performance AS (
         SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)                   AS churned_customers,
         ROUND(100.0 * SUM(CASE WHEN churned = 'Yes' THEN 1 ELSE 0 END)
               / NULLIF(COUNT(*), 0), 2)                                   AS churn_rate_pct,
-        ROUND(AVG(cac), 2)                                                AS avg_cac,
         ROUND(SUM(CASE WHEN churned = 'Yes' THEN monthly_revenue ELSE 0 END), 2) AS lost_mrr
     FROM subscriptions
     GROUP BY acquisition_channel
@@ -176,7 +175,6 @@ SELECT
     customers,
     churned_customers,
     churn_rate_pct,
-    avg_cac,
     lost_mrr,
     RANK() OVER (ORDER BY churn_rate_pct DESC) AS churn_rank,
     RANK() OVER (ORDER BY lost_mrr      DESC) AS revenue_loss_rank
@@ -330,7 +328,7 @@ plan_lifespan AS (
     GROUP BY plan
 ),
 plan_economics AS (
-    SELECT plan, AVG(monthly_revenue) AS avg_mrr, AVG(cac) AS avg_cac
+    SELECT plan, AVG(monthly_revenue) AS avg_mrr, (SELECT AVG(customer_acquisition_cost) FROM monthly_revenue) AS blended_cac
     FROM subscriptions
     GROUP BY plan
 )
@@ -339,8 +337,8 @@ SELECT
     ROUND(e.avg_mrr, 2)                                                   AS avg_mrr,
     ROUND(l.avg_lifespan_months, 1)                                       AS avg_lifespan_months,
     ROUND(e.avg_mrr * l.avg_lifespan_months, 2)                           AS estimated_clv,
-    ROUND(e.avg_cac, 2)                                                   AS avg_cac,
-    ROUND(e.avg_mrr * l.avg_lifespan_months / NULLIF(e.avg_cac, 0), 2)    AS clv_to_cac_ratio
+    ROUND(e.blended_cac, 2)                                               AS blended_cac,   -- blended monthly CAC from monthly_revenue; CAC is not tracked per plan
+    ROUND(e.avg_mrr * l.avg_lifespan_months / NULLIF(e.blended_cac, 0), 2)    AS clv_to_cac_ratio
 FROM plan_economics e
 JOIN plan_lifespan  l ON l.plan = e.plan
 ORDER BY clv_to_cac_ratio;
@@ -354,11 +352,11 @@ ORDER BY clv_to_cac_ratio;
 SELECT
     month,
     total_mrr,
-    active_customers,
+    total_active_customers,
     new_customers,
     churned_customers,
     ROUND(100.0 * churned_customers
-          / NULLIF(active_customers + churned_customers, 0), 2)           AS monthly_churn_rate_pct,
+          / NULLIF(total_active_customers + churned_customers, 0), 2)     AS monthly_churn_rate_pct,
     LAG(total_mrr) OVER (ORDER BY month)                                  AS prior_month_mrr,
     ROUND(100.0 * (total_mrr - LAG(total_mrr) OVER (ORDER BY month))
           / NULLIF(LAG(total_mrr) OVER (ORDER BY month), 0), 2)           AS mrr_growth_pct
