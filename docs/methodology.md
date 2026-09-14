@@ -23,8 +23,8 @@ Raw extracts are treated as immutable. All cleaning, typing and derivation happe
 | Metric | Definition | Published value |
 |---|---|---|
 | Total Customers | Distinct count of `customer_id` in `subscriptions` | 600 |
-| Churned Customers | Customers where `is_churned = 1` | 313 |
-| Active Customers | Customers where `is_churned = 0` | 287 |
+| Churned Customers | Customers where `churned = 'Yes'` | 313 |
+| Active Customers | Customers where `churned = 'No'` | 287 |
 | Churn Rate | Churned Customers / Total Customers. Lifetime (cumulative) rate across the observed window, not a monthly rate | 52.17% |
 | Monthly Churn Rate | Customers churning in month M / customers billable at the start of month M | Trended over 48 months |
 | Average Monthly Churn Rate | Mean of the 48 monthly churn rates | Reported on Page 1 |
@@ -83,7 +83,7 @@ Checks run before any figure is shared:
 2. **Completeness** - no nulls in required fields (identifier, plan, billing cycle, company size, channel, MRR, signup date).
 3. **Expected nulls** - `churn_date` and `churn_reason` are populated only for churned customers and blank for active customers. Blanks here are correct, not missing data.
 4. **Date validity** - all dates parse, no churn date precedes its signup date, all dates fall inside the 48-month window.
-5. **Type validity** - MRR, NPS, feature usage, support tickets and CAC load as numeric; NPS within 0-10 and feature usage within 0-100.
+5. **Type validity** - MRR, `nps_score`, `feature_usage_pct`, `seats`, `support_tickets_12mo` and CAC load as numeric; NPS within 0-10 and feature usage within 0-100.
 6. **Categorical integrity** - plan, billing cycle, company size, region and channel contain only expected values with no casing or spelling drift.
 7. **Cross-tool reconciliation** - SQL, Excel and Power BI must return identical control totals.
 
