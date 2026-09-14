@@ -1,6 +1,6 @@
 # Data Dictionary
 
-Field-level documentation for the two source extracts used in this project. Data types are stated as they are modeled in SQL and Power BI after load, not as raw CSV text.
+Field-level documentation for the two source extracts used in this project. Every field name below matches the header in the source CSV exactly, and data types are stated as they are loaded.
 
 ---
 
@@ -10,20 +10,23 @@ Field-level documentation for the two source extracts used in this project. Data
 
 | Field | Table | Data type | Definition | Business interpretation |
 |---|---|---|---|---|
-| `customer_id` | subscriptions | Text | Unique customer identifier | Primary key. Uniqueness is validated before analysis; duplicates would double-count churn and MRR |
+| `customer_id` | subscriptions | Text | Unique customer identifier | Primary key. Uniqueness is validated before analysis |
+| `plan` | subscriptions | Text | Subscription tier: Starter, Professional, Business, Enterprise | Main product-value dimension; drives the plan churn comparison |
+| `billing_cycle` | subscriptions | Text | Billing cadence: Monthly, Annual | Proxy for commitment length; monthly customers churn more |
+| `industry` | subscriptions | Text | Customer industry (for example Technology, Finance, Retail, Healthcare, Media) | Context dimension for segment review |
+| `company_size` | subscriptions | Text | Employee band: 1-10, 11-50, 51-200, 201-500, 500+ | Segments where churn concentrates by customer size |
+| `seats` | subscriptions | Integer | Licensed seats on the subscription | Account size indicator alongside MRR |
+| `monthly_revenue` | subscriptions | Decimal | Customer monthly recurring revenue. For churned customers this is the last known MRR before churn | Basis for Active MRR and Lost MRR |
+| `acquisition_channel` | subscriptions | Text | Channel that acquired the customer (for example Organic Search, Paid Ads, Referral, Partner, Direct Sales) | Links retention quality to go-to-market source |
+| `region` | subscriptions | Text | Customer region (for example North America, Europe, Asia Pacific, Latin America) | Slicer dimension for executive reporting |
 | `signup_date` | subscriptions | Date | Date the subscription started | Used for tenure and cohort logic |
-| `plan` | subscriptions | Text | Subscription tier (Starter, Growth, Enterprise) | Main product-value dimension; plan mix drives both churn and MRR concentration |
-| `billing_cycle` | subscriptions | Text | Billing cadence (Monthly, Annual) | Proxy for commitment length; monthly customers can leave at every renewal point |
-| `company_size` | subscriptions | Text | Customer size band (for example SMB, Mid-Market, Enterprise) | Segments where churn behavior and service expectations differ |
-| `region` | subscriptions | Text | Customer region | Slicer dimension for executive reporting |
-| `acquisition_channel` | subscriptions | Text | Channel that acquired the customer (for example Organic, Paid Search, Referral, Partner, Outbound) | Links retention quality back to go-to-market spend, not just volume |
-| `monthly_revenue` | subscriptions | Decimal | Customer monthly recurring revenue. For churned customers this is the last known MRR before churn | Basis for MRR and Lost MRR; makes revenue impact comparable across segments |
+| `churned` | subscriptions | Text (Yes/No) | Churn flag: Yes = churned, No = active | Drives every churn rate in the project |
+| `churn_date` | subscriptions | Date (nullable) | Date the subscription ended | Expected blank for active customers. Blank is valid, not missing |
+| `churn_reason` | subscriptions | Text (nullable) | Self-reported reason for cancellation | Expected blank for active customers; self-reported, so subject to reporting bias |
+| `support_tickets_12mo` | subscriptions | Integer | Support tickets raised by the customer in the last 12 months | Service-friction indicator, not a satisfaction score |
 | `nps_score` | subscriptions | Integer (0-10) | Most recent Net Promoter Score response | Satisfaction signal; one of the two inputs to the at-risk rule |
 | `feature_usage_pct` | subscriptions | Decimal (0-100) | Percentage of core product features actively used | Adoption signal; low adoption indicates unrealized product value |
-| `support_tickets` | subscriptions | Integer | Count of support tickets raised by the customer | Service-friction indicator used in behavioral comparison |
-| `is_churned` | subscriptions | Integer (0/1) | Churn flag: 1 = churned, 0 = active | Drives every churn rate in the project |
-| `churn_date` | subscriptions | Date (nullable) | Date the subscription ended | **Expected blank for active customers.** Blank is valid, not missing |
-| `churn_reason` | subscriptions | Text (nullable) | Self-reported reason for cancellation | **Expected blank for active customers.** Self-reported, so subject to reporting bias |
+| `upgraded` | subscriptions | Text (Yes/No) | Whether the customer has upgraded plan since signup | Expansion indicator |
 
 ---
 
@@ -33,12 +36,14 @@ Field-level documentation for the two source extracts used in this project. Data
 
 | Field | Table | Data type | Definition | Business interpretation |
 |---|---|---|---|---|
-| `month` | monthly_revenue | Date | First day of the reporting month | Join key to the `Date` table in the Power BI model |
-| `total_mrr` | monthly_revenue | Decimal | Total recurring revenue billed in the month | Source of the MRR trend and of Latest MRR |
-| `active_customers` | monthly_revenue | Integer | Customers billable during the month | Denominator context for monthly churn |
+| `month` | monthly_revenue | Date | Reporting month (YYYY-MM) | Join key to the `Date` table in the Power BI model |
+| `total_active_customers` | monthly_revenue | Integer | Customers billable during the month | Denominator context for monthly churn |
 | `new_customers` | monthly_revenue | Integer | Customers acquired during the month | Shows whether growth is masking retention weakness |
 | `churned_customers` | monthly_revenue | Integer | Customers who canceled during the month | Numerator of the monthly churn rate |
-| `customer_acquisition_cost` | monthly_revenue | Decimal | Blended customer acquisition cost recorded for the month | Monthly aggregate, not a per-customer attribute; compared with CLV to assess payback |
+| `monthly_churn_rate_pct` | monthly_revenue | Decimal | Churn rate recorded for the month | Trend line behind the monthly churn chart |
+| `total_mrr` | monthly_revenue | Decimal | Total recurring revenue billed in the month | Source of the MRR trend and of Latest MRR |
+| `avg_revenue_per_customer` | monthly_revenue | Decimal | Average revenue per active customer in the month | Context for whether MRR movement is volume or price driven |
+| `customer_acquisition_cost` | monthly_revenue | Decimal | Blended customer acquisition cost recorded for the month | Monthly aggregate, not a per-customer attribute; pairs with CLV to assess payback |
 
 ---
 
