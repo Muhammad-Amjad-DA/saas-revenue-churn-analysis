@@ -41,7 +41,7 @@ Field-level documentation for the two source extracts used in this project. Ever
 | `new_customers` | monthly_revenue | Integer | Customers acquired during the month | Shows whether growth is masking retention weakness |
 | `churned_customers` | monthly_revenue | Integer | Customers who canceled during the month | Numerator of the monthly churn rate |
 | `monthly_churn_rate_pct` | monthly_revenue | Decimal | Churn rate recorded for the month | Trend line behind the monthly churn chart |
-| `total_mrr` | monthly_revenue | Decimal | Total recurring revenue billed in the month | Source of the MRR trend and of Latest MRR |
+| `total_mrr` | monthly_revenue | Decimal | Total recurring revenue billed in the month | Source of the MRR trend and of Latest MRR. Opening-of-month snapshot (customers active on the first day of the month) |
 | `avg_revenue_per_customer` | monthly_revenue | Decimal | Average revenue per active customer in the month | Context for whether MRR movement is volume or price driven |
 | `customer_acquisition_cost` | monthly_revenue | Decimal | Blended customer acquisition cost recorded for the month | Monthly aggregate, not a per-customer attribute; pairs with CLV to assess payback |
 

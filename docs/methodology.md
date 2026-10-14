@@ -29,7 +29,8 @@ Raw extracts are treated as immutable. All cleaning, typing and derivation happe
 | Monthly Churn Rate | Customers churning in month M / customers billable at the start of month M | Trended over 48 months |
 | Average Monthly Churn Rate | Mean of the 48 monthly churn rates | Reported on Page 1 |
 | MRR | Sum of `monthly_revenue` for active customers | Snapshot measure |
-| Latest MRR | `total_mrr` for the most recent month in `monthly_revenue` | approx. \$292.6K |
+| Latest MRR (opening) | `total_mrr` for the most recent month in `monthly_revenue`. The monthly table is an **opening-of-month** snapshot (customers active on the first day of the month), so this is December 2025 opening MRR | approx. \$292.6K |
+| Active MRR (end of data) | Sum of `monthly_revenue` for the 287 active customers | \$295,420 |
 | MRR Growth | (Latest MRR - prior month MRR) / prior month MRR | Month-over-month |
 | Lost MRR | Sum of `monthly_revenue` for churned customers. Represents recurring revenue no longer being billed, measured at the customer's last known MRR | Segment-level driver metric |
 | Average CAC | Average of `customer_acquisition_cost` across the months in scope | Blended monthly figure, see assumptions |
@@ -100,7 +101,9 @@ Checks run before any figure is shared:
 | Monthly Billing Churn Rate | 60.51% |
 | Annual Billing Churn Rate | 40.32% |
 | At-Risk Active Customers | 31 |
-| Latest MRR | approx. \$292.6K |
+| Latest MRR (December opening, monthly table) | approx. \$292.6K |
+| Active MRR (end of data) | \$295,420 |
+| December opening active customers (monthly table) | 281 (see [data_reconciliation.md](data_reconciliation.md)) |
 
 Any tool returning a materially different value is investigated and resolved before publication; the report is not released on unreconciled numbers.
 
