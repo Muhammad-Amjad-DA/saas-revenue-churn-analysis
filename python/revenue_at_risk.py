@@ -14,6 +14,17 @@ churned, active = s[s.churned == "Yes"], s[s.churned == "No"]
 at_risk = active[(active.feature_usage_pct < 40) & (active.nps_score <= 4)]
 assert (len(s), len(churned), len(active), len(at_risk)) == (600, 313, 287, 31), "control totals changed"
 
+assert churned.churn_reason.notna().all() and active.churn_reason.isna().all(), "churn_reason must be filled only for churned customers"
+
+# Monthly table is an OPENING-of-month snapshot: recompute it from subscriptions.csv and compare.
+sub = pd.read_csv(root / "data" / "subscriptions.csv", parse_dates=["signup_date", "churn_date"])
+monthly = pd.read_csv(root / "data" / "monthly_revenue.csv")
+for _, r in monthly.iterrows():
+    first = pd.Timestamp(str(r.month)[:7] + "-01")
+    a = sub[(sub.signup_date <= first) & (sub.churn_date.isna() | (sub.churn_date > first))]
+    assert len(a) == r.total_active_customers and abs(a.monthly_revenue.sum() - r.total_mrr) < 0.01, f"monthly table mismatch {r.month}"
+print("monthly_revenue.csv reproduces from subscriptions.csv (opening-of-month snapshot), 48 months")
+
 lost_total = churned.monthly_revenue.sum()
 by_plan = (churned.groupby("plan").agg(churned_customers=("customer_id", "count"), lost_mrr=("monthly_revenue", "sum"))
            .assign(pct_churned_customers=lambda d: 100 * d.churned_customers / d.churned_customers.sum(),
