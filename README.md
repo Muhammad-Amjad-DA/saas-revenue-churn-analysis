@@ -55,7 +55,7 @@ At-risk MRR is $28,319. Saving 25% is $7.1K MRR ($85K a year), and saving 50% is
 **At-risk rule:** active, feature usage below 40%, and NPS of 4 or lower. It is a transparent heuristic, not a predictive model, and is intended as an outreach filter.
 
 ## Dashboard
-Three Power BI pages: Executive Overview, Churn Diagnostics, and Customer Risk and Unit Economics.
+Three Power BI pages: Executive Overview, Churn Diagnostics, and Customer Risk and Unit Economics. The images below are preview renderings of the report layout built from the validated data, not raw exports of the .pbix file (see [`screenshots/README.md`](screenshots/README.md)). The .pbix in `powerbi/` is the authoritative version.
 
 ![Executive overview](screenshots/executive_overview.png)
 ![Churn diagnostics](screenshots/churn_diagnostics.png)
