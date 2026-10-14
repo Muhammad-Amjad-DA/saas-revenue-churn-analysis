@@ -30,9 +30,9 @@ Uniqueness, completeness, date and type validity, and categorical integrity chec
 | Total / churned / active customers | 600 / 313 / 287 |
 | Overall churn rate | 52.17% |
 | At-risk active customers | 31 |
-| Latest MRR (monthly table) | $292,628.61 |
+| December opening MRR (monthly table) / active MRR at end of data | $292,629 / $295,420 |
 
-`python/revenue_at_risk.py` re-derives the control totals and asserts them before it reports anything.
+`python/revenue_at_risk.py` re-derives the control totals and asserts them before it reports anything. A data audit found two inconsistencies (a stray text value in the Excel file and an opening-vs-closing count difference of 281 vs 287). Both are explained and fixed in [`docs/data_reconciliation.md`](docs/data_reconciliation.md).
 
 ## 4. Analysis
 - **Churn by plan:** Starter 70.5%, Professional 48.0%, Business 41.2%, Enterprise 22.0%.
@@ -45,7 +45,7 @@ The segment with the worst churn **rate** is not the segment with the worst chur
 
 ## 6. Recommendations
 1. **Call the 16 at-risk Business and Enterprise accounts first.** They hold 88% of the at-risk MRR ($24.8K).
-2. **Offer annual contracts to monthly Business customers.** Churn is roughly half as high on annual plans.
+2. **Offer annual contracts to monthly Business customers.** Churn is roughly half as high on annual plans, but customers choose their plan, so this is a hypothesis to test, not proof that annual contracts reduce churn.
 3. **Improve Starter onboarding and adoption.** It is the volume problem, but the smaller revenue problem.
 4. **Review acquisition channels by Lost MRR and retention**, not customer count.
 
@@ -69,4 +69,4 @@ Three Power BI pages: Executive Overview, Churn Diagnostics, and Customer Risk a
 - All dollar impact is a scenario on synthetic data.
 
 ## Project files
-[SQL analysis](sql/saas_churn_revenue_analysis.sql) | [Methodology](docs/methodology.md) | [Data dictionary](docs/data_dictionary.md) | `excel/saas_revenue_churn_analysis.xlsx` | `powerbi/saas_churn_dashboard.pbix` | `python/revenue_at_risk.py`
+[SQL analysis](sql/saas_churn_revenue_analysis.sql) | [Methodology](docs/methodology.md) | [Data dictionary](docs/data_dictionary.md) | [Data reconciliation](docs/data_reconciliation.md) | `excel/saas_revenue_churn_analysis.xlsx` | `powerbi/saas_churn_dashboard.pbix` | `python/revenue_at_risk.py`
