@@ -1,0 +1,27 @@
+name: Daily Contribution
+
+on:
+  schedule:
+    - cron: '0 5,7,11 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  daily-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add a space at the end of README.md
+        run: echo ' ' >> README.md
+
+      - name: Commit and push
+        run: |
+          git config user.name "Muhammad-Amjad-DA"
+          git config user.email "192451297+Muhammad-Amjad-DA@users.noreply.github.com"
+          git add README.md
+          git commit -m "Add a space at the end of README.md" || exit 0
+          git push
