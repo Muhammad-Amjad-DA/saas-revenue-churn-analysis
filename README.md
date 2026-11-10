@@ -70,3 +70,4 @@ Three Power BI pages: Executive Overview, Churn Diagnostics, and Customer Risk a
 
 ## Project files
 [SQL analysis](sql/saas_churn_revenue_analysis.sql) | [Methodology](docs/methodology.md) | [Data dictionary](docs/data_dictionary.md) | [Data reconciliation](docs/data_reconciliation.md) | `excel/saas_revenue_churn_analysis.xlsx` | `powerbi/saas_churn_dashboard.pbix` | `python/revenue_at_risk.py`
+ 
